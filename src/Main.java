@@ -137,13 +137,6 @@ public class Main {
 			}
 
 			if (count >= 6) {
-				if (max == 4) {
-					System.err.println(count);
-					System.err.println(max);
-					System.err.println(Arrays.toString(drawn));
-					System.err.println(Arrays.toString(tickets[i]));
-					System.exit(0);
-				}
 				counters[i][max + 1]++;
 			} else {
 				counters[i][0]++;
@@ -253,7 +246,7 @@ public class Main {
 		 */
 		for (int i = 0; i < counters.length; i++) {
 			for (int j = 0; j < counters[i].length; j++) {
-				System.out.print(String.format("%8.6f", ((double) counters[i][j]) / (double) runs));
+				System.out.print("= " + counters[i][j] + " / " + runs);
 				System.out.print("\t");
 			}
 			System.out.println();
@@ -261,7 +254,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		simulate(100000000L);
+		simulate(1000000000L);
 	}
 
 }
