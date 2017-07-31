@@ -309,7 +309,7 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		simulate(1000000L, 66, 6, 9);
+		simulate(1000000000L, 66, 6, 9);
 	}
 
 }
