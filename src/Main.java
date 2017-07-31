@@ -1,34 +1,23 @@
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Arrays;
+import java.util.Collections;
 
-class Ball implements Comparable<Ball> {
-
-	int value;
-
-	int color;
-
-	public Ball(int value, int color) {
-		super();
-		this.value = value;
-		this.color = color;
-	}
-
-	@Override
-	public String toString() {
-		return "[" + value + "," + color + "]";
-	}
-
-	@Override
-	public int compareTo(Ball ball) {
-		return this.value - ball.value;
-	}
-
-}
-
+/**
+ * Application single entry point class.
+ * 
+ * @author Todor Balabanov
+ */
 public class Main {
 
+	/**
+	 * Pseudo-random number generator instance.
+	 */
+	private static final Random PRNG = new Random();
+
+	/**
+	 * Bingo balls data representation.
+	 */
 	private static final Ball BALLS[] = { new Ball(1, 0), new Ball(2, 1), new Ball(3, 2), new Ball(4, 3),
 			new Ball(5, 4), new Ball(6, 5), new Ball(7, 6), new Ball(8, 7), new Ball(9, 8), new Ball(10, 9),
 
@@ -56,8 +45,14 @@ public class Main {
 			new Ball(81, 0), new Ball(82, 1), new Ball(83, 2), new Ball(84, 3), new Ball(85, 4), new Ball(86, 5),
 			new Ball(87, 6), new Ball(88, 7), new Ball(89, 8), new Ball(90, 9), };
 
-	private static final Random PRNG = new Random();
-
+	/**
+	 * Shuffle balls and draw specified number out.
+	 * 
+	 * @param balls
+	 *            List of all balls in the game.
+	 * @param drawn
+	 *            Array of drawn balls.
+	 */
 	private static void deal(List<Ball> balls, Ball[] drawn) {
 		Collections.shuffle(balls);
 
@@ -66,6 +61,14 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Random selection of numbers in the tickets.
+	 * 
+	 * @param tickets
+	 *            Five tickets for combinations of 6/6, 6/7, 6/8, 6/9 and 6/10.
+	 * @param balls
+	 *            List of all balls in the game.
+	 */
 	private static void mark(Ball[][] tickets, List<Ball> balls) {
 		for (int i = 0; i < tickets.length; i++) {
 			for (int j = 0; j < tickets[i].length; j++) {
@@ -92,7 +95,23 @@ public class Main {
 		}
 	}
 
-	private static void count(Ball drawn[], Ball[][] tickets, long[][] counters) {
+	/**
+	 * Check out wining situations.
+	 * 
+	 * @param drawn
+	 *            Balls drawn in the single game.
+	 * @param tickets
+	 *            Tickets marked in the single game.
+	 * @param numberOfBallsToGuess
+	 *            How many balls should be guessed.
+	 * @param numberOfSameColor
+	 *            How many balls should come out in order to count particular
+	 *            color as complete.
+	 * @param counters
+	 *            Winnings counters.
+	 */
+	private static void count(Ball drawn[], Ball[][] tickets, int numberOfBallsToGuess, int numberOfSameColor,
+			long[][] counters) {
 		for (int i = 0, max, count; i < tickets.length; i++) {
 			max = 0;
 			count = 0;
@@ -123,7 +142,7 @@ public class Main {
 						/*
 						 * Six balls are known.
 						 */
-						if (count >= 6) {
+						if (count >= numberOfBallsToGuess) {
 							break loop;
 						}
 
@@ -136,7 +155,7 @@ public class Main {
 				}
 			}
 
-			if (count >= 6) {
+			if (count >= numberOfBallsToGuess) {
 				counters[i][max + 1]++;
 			} else {
 				counters[i][0]++;
@@ -156,17 +175,28 @@ public class Main {
 			/*
 			 * Count if more than six balls from the same color are drawn.
 			 */
-			if (colors[i] >= 6) {
+			if (colors[i] >= numberOfSameColor) {
 				sum++;
 			}
 		}
 		counters[5][sum]++;
 	}
 
-	private static void simulate(long runs) {
-		Ball drawn[] = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-				null, null, };
+	/**
+	 * Game simulation.
+	 * 
+	 * @param runs
+	 *            How many games to run.
+	 * @param drawnBallsNumber
+	 *            How many balls to draw in a single game.
+	 * @param numberOfBallsToGuess
+	 *            How many balls to guess in a single game.
+	 * @param numberOfSameColor
+	 *            How many balls from the same color should be drawn in order
+	 *            the color to be counted as complete.
+	 */
+	private static void simulate(long runs, int drawnBallsNumber, int numberOfBallsToGuess, int numberOfSameColor) {
+		Ball drawn[] = new Ball[drawnBallsNumber];
 
 		List<Ball> balls = Arrays.asList(BALLS);
 
@@ -185,17 +215,16 @@ public class Main {
 		};
 
 		long counters[][] = {
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0 },
+				/*
+				 * At which ball win is achieved. Plus one is needed because it
+				 * is possible to have situations without win.
+				 */
+				new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1],
+				new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1],
 
+				/*
+				 * How many colors are completed.
+				 */
 				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, };
 
 		/*
@@ -214,18 +243,38 @@ public class Main {
 			 */
 			deal(balls, drawn);
 			mark(tickets, balls);
-			count(drawn, tickets, counters);
+			count(drawn, tickets, numberOfBallsToGuess, numberOfSameColor, counters);
 		}
 
 		/*
 		 * Report drawn balls number.
 		 */
-		System.out.println(drawn.length);
+		System.out.print("Drawn Balls:");
+		System.out.print("\t");
+		System.out.println(drawnBallsNumber);
+		System.out.println();
+
+		/*
+		 * Report number of balls to guess.
+		 */
+		System.out.print("Guess Balls:");
+		System.out.print("\t");
+		System.out.println(numberOfBallsToGuess);
+		System.out.println();
+
+		/*
+		 * Report number of balls to guess.
+		 */
+		System.out.print("Color Complete:");
+		System.out.print("\t");
+		System.out.println(numberOfSameColor);
 		System.out.println();
 
 		/*
 		 * Report experiments number.
 		 */
+		System.out.print("Experiments:");
+		System.out.print("\t");
 		System.out.println(runs);
 		System.out.println();
 
@@ -253,8 +302,14 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Application single entry point method.
+	 * 
+	 * @param args
+	 *            Command line arguments.
+	 */
 	public static void main(String[] args) {
-		simulate(1000000000L);
+		simulate(1000000L, 66, 6, 9);
 	}
 
 }
