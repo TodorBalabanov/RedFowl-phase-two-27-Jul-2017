@@ -155,6 +155,9 @@ public class Main {
 				}
 			}
 
+			/*
+			 * Count when there is a win or there is not.
+			 */
 			if (count >= numberOfBallsToGuess) {
 				counters[i][max + 1]++;
 			} else {
@@ -164,12 +167,16 @@ public class Main {
 		}
 
 		/*
-		 * Count colors.
+		 * Count how many balls are drawn from each color.
 		 */
-		int colors[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		int colors[] = new int[counters[tickets.length].length];
 		for (int k = 0; k < drawn.length; k++) {
 			colors[drawn[k].color]++;
 		}
+
+		/*
+		 * Count how many colors are complete.
+		 */
 		int sum = 0;
 		for (int i = 0; i < colors.length; i++) {
 			/*
@@ -179,7 +186,11 @@ public class Main {
 				sum++;
 			}
 		}
-		counters[5][sum]++;
+
+		/*
+		 * Colors counters are at the last index in the two dimensional array.
+		 */
+		counters[tickets.length][sum]++;
 	}
 
 	/**
@@ -187,45 +198,50 @@ public class Main {
 	 * 
 	 * @param runs
 	 *            How many games to run.
+	 * @param numberOfCloros
+	 *            Number of different ball colors.
 	 * @param drawnBallsNumber
 	 *            How many balls to draw in a single game.
 	 * @param numberOfBallsToGuess
 	 *            How many balls to guess in a single game.
+	 * @param maxTicketBalls
+	 *            Maximum numbers which can be marked in a specific ticket.
 	 * @param numberOfSameColor
 	 *            How many balls from the same color should be drawn in order
 	 *            the color to be counted as complete.
 	 */
-	private static void simulate(long runs, int drawnBallsNumber, int numberOfBallsToGuess, int numberOfSameColor) {
+	private static void simulate(long runs, int numberOfCloros, int drawnBallsNumber, int numberOfBallsToGuess,
+			int maxTicketBalls, int numberOfSameColor) {
 		Ball drawn[] = new Ball[drawnBallsNumber];
 
 		List<Ball> balls = Arrays.asList(BALLS);
 
-		Ball tickets[][] = {
+		/*
+		 * Allocate tickets for all possible combinations.
+		 */
+		Ball tickets[][] = new Ball[maxTicketBalls - numberOfBallsToGuess + 1][];
+		for (int i = 0; i < tickets.length; i++) {
+			tickets[i] = new Ball[numberOfBallsToGuess + i];
+		}
 
-				{ null, null, null, null, null, null, },
+		/*
+		 * Counters for each ticket. Plus two is needed because the counters of
+		 * the complete colors are also included in this two dimensional array.
+		 */
+		long counters[][] = new long[maxTicketBalls - numberOfBallsToGuess + 1 + 1][];
+		for (int i = 0; i < counters.length - 1; i++) {
+			/*
+			 * At which ball win is achieved. Plus one is needed because it is
+			 * possible to have situations without win.
+			 */
+			counters[i] = new long[drawnBallsNumber + 1];
+		}
 
-				{ null, null, null, null, null, null, null, },
-
-				{ null, null, null, null, null, null, null, null, },
-
-				{ null, null, null, null, null, null, null, null, null, },
-
-				{ null, null, null, null, null, null, null, null, null, null, },
-
-		};
-
-		long counters[][] = {
-				/*
-				 * At which ball win is achieved. Plus one is needed because it
-				 * is possible to have situations without win.
-				 */
-				new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1],
-				new long[drawnBallsNumber + 1], new long[drawnBallsNumber + 1],
-
-				/*
-				 * How many colors are completed.
-				 */
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, };
+		/*
+		 * How many colors are completed. Plus one is needed because it is
+		 * possible no color to be completed.
+		 */
+		counters[counters.length - 1] = new long[numberOfCloros + 1];
 
 		/*
 		 * Simulation.
@@ -309,7 +325,7 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		simulate(1000000000L, 66, 6, 9);
+		simulate(1000000L, 10, 66, 9, 15, 9);
 	}
 
 }
