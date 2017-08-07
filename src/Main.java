@@ -325,7 +325,12 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		simulate(1000000000L, 10, 66, 9, 15, 9);
+		/*
+		 * Classical Lucky Six game.
+		 */
+		//simulate(1000000000L, 10, 35, 6, 10, 6);
+		
+		simulate(1000000000L, 10, 35, 6, 10, 7);
 	}
 
 }
