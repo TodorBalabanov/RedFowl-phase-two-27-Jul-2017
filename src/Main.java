@@ -3,13 +3,10 @@ import java.util.Random;
 
 import org.apache.commons.math3.util.Combinations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-
-//for (Iterator<int[]> it = combinations[i].iterator(); it.hasNext();) {
-//	System.err.println(Arrays.toString(it.next()));
-//}
 
 /**
  * Application single entry point class.
@@ -66,7 +63,7 @@ public class Main {
 	/**
 	 * Tickets marked in the single game.
 	 */
-	private static Ball tickets[][] = null;
+	private static List<Ball[]> tickets[] = null;
 
 	/**
 	 * Combinations for each ticket.
@@ -91,10 +88,20 @@ public class Main {
 
 	/**
 	 * Random selection of numbers in the tickets.
+	 * 
+	 * @param numberOfBallsToGuess
+	 *            How many balls to guess in a single game.
+	 * @param maxTicketBalls
+	 *            Maximum numbers which can be marked in a specific ticket.
 	 */
-	private static void mark() {
-		for (int i = 0; i < tickets.length; i++) {
-			for (int j = 0; j < tickets[i].length; j++) {
+	private static void mark(int numberOfBallsToGuess, int maxTicketBalls) {
+		/*
+		 * Fill numbers used for the tickets.
+		 */
+		Ball numbers[][] = new Ball[maxTicketBalls - numberOfBallsToGuess + 1][];
+		for (int i = 0; i < numbers.length; i++) {
+			numbers[i] = new Ball[numberOfBallsToGuess + i];
+			for (int j = 0; j < numbers[i].length; j++) {
 				Ball ball = null;
 
 				/*
@@ -104,16 +111,71 @@ public class Main {
 					ball = balls.get(PRNG.nextInt(balls.size()));
 
 					for (int k = 0; k < j; k++) {
-						if (tickets[i][k] == ball) {
+						if (numbers[i][k] == ball) {
 							ball = null;
 							break;
 						}
 					}
 				} while (ball == null);
 
-				tickets[i][j] = ball;
+				numbers[i][j] = ball;
+			}
+
+			// TODO May be it is not needed.
+			Arrays.sort(numbers[i]);
+		}
+
+		/*
+		 * Fill tickets with numbers.
+		 */
+		for (int i = 0; i < numbers.length; i++) {
+			for (Iterator<int[]> it = combinations[i].iterator(); it.hasNext();) {
+				int indexes[] = it.next();
+				Ball[] combination = new Ball[numberOfBallsToGuess];
+				for (int j = 0; j < combination.length; j++) {
+					combination[j] = numbers[i][indexes[j]];
+				}
+				tickets[i].add(combination);
 			}
 		}
+	}
+
+	/**
+	 * Locate final position of the combination guess.
+	 * 
+	 * @param combination
+	 *            Combination to guess.
+	 * @return The position of the final ball or minus one if the combination is
+	 *         not presented in the list of the drawn numbers.
+	 */
+	private static int locate(Ball[] combination) {
+		int count = 0;
+		int position = -1;
+
+		for (int i = 0; i < combination.length; i++) {
+			for (int j = 0; j < drawn.length; j++) {
+				if (drawn[j] == combination[i]) {
+					/*
+					 * Keep the farthest position.
+					 */
+					if (position < j) {
+						position = j;
+					}
+
+					count++;
+					break;
+				}
+			}
+		}
+
+		/*
+		 * If all numbers are not found there is no win.
+		 */
+		if (count != combination.length) {
+			position = -1;
+		}
+
+		return position;
 	}
 
 	/**
@@ -126,58 +188,37 @@ public class Main {
 	 *            color as complete.
 	 */
 	private static void count(int numberOfBallsToGuess, int numberOfSameColor) {
-		for (int i = 0, max, count; i < tickets.length; i++) {
-			max = 0;
-			count = 0;
-
-			/*
-			 * Check all drawn balls.
-			 */
-			loop: for (int k = 0; k < drawn.length; k++) {
+		for (int i = 0; i < tickets.length; i++) {
+			boolean found = false;
+			for (Ball[] combination : tickets[i]) {
+				int position = locate(combination);
 
 				/*
-				 * Check all balls marked in the ticket.
+				 * If there is no enough numbers guessed do not count win.
 				 */
-				for (int j = 0; j < tickets[i].length; j++) {
-
-					/*
-					 * When ball is marked in the ticket.
-					 */
-					if (tickets[i][j] == drawn[k]) {
-						count++;
-
-						/*
-						 * Mark the position of the latest ball guess.
-						 */
-						if (max < k) {
-							max = k;
-						}
-
-						/*
-						 * Six balls are known.
-						 */
-						if (count >= numberOfBallsToGuess) {
-							break loop;
-						}
-
-						/*
-						 * If the number is found in the ticket there is no need
-						 * to search the rest of the ticket.
-						 */
-						break;
-					}
+				if (position == -1) {
+					continue;
 				}
+
+				/*
+				 * If win found mark this in order to keep track of tickets
+				 * without win.
+				 */
+				found = true;
+
+				/*
+				 * Mark win at the particular place. Zero index is kept for
+				 * tickets without win.
+				 */
+				counters[i][position + 1]++;
 			}
 
 			/*
-			 * Count when there is a win or there is not.
+			 * Keep track of the tickets without win.
 			 */
-			if (count >= numberOfBallsToGuess) {
-				counters[i][max + 1]++;
-			} else {
+			if (found == false) {
 				counters[i][0]++;
 			}
-
 		}
 
 		/*
@@ -233,10 +274,10 @@ public class Main {
 		/*
 		 * Allocate tickets for all possible combinations.
 		 */
-		tickets = new Ball[maxTicketBalls - numberOfBallsToGuess + 1][];
+		tickets = new ArrayList[maxTicketBalls - numberOfBallsToGuess + 1];
 		combinations = new Combinations[maxTicketBalls - numberOfBallsToGuess + 1];
 		for (int i = 0; i < tickets.length; i++) {
-			tickets[i] = new Ball[numberOfBallsToGuess + i];
+			tickets[i] = new ArrayList<Ball[]>();
 			combinations[i] = new Combinations(numberOfBallsToGuess + i, numberOfBallsToGuess);
 		}
 
@@ -274,7 +315,7 @@ public class Main {
 			 * Single run.
 			 */
 			deal();
-			mark();
+			mark(numberOfBallsToGuess, maxTicketBalls);
 			count(numberOfBallsToGuess, numberOfSameColor);
 		}
 
@@ -344,7 +385,7 @@ public class Main {
 		/*
 		 * Classical Lucky Six game.
 		 */
-		simulate(1000000000L, 10, 35, 6, 10, 6);
+		simulate(10000L, 10, 35, 6, 10, 6);
 	}
 
 }
