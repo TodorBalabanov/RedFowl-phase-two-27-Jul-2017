@@ -129,6 +129,7 @@ public class Main {
 		 * Fill tickets with numbers.
 		 */
 		for (int i = 0; i < numbers.length; i++) {
+			tickets[i].clear();
 			for (Iterator<int[]> it = combinations[i].iterator(); it.hasNext();) {
 				int indexes[] = it.next();
 				Ball[] combination = new Ball[numberOfBallsToGuess];
@@ -308,7 +309,8 @@ public class Main {
 			 * Report progress.
 			 */
 			if (r % interval == 0) {
-				System.err.println(String.format("%5.2f", (100D * r / runs)) + "%");
+				// System.err.println(String.format("%5.2f", (100D * r / runs))
+				// + "%");
 			}
 
 			/*
@@ -386,6 +388,8 @@ public class Main {
 		 * Classical Lucky Six game.
 		 */
 		simulate(10000L, 10, 35, 6, 10, 6);
+
+		// simulate(10000L, 10, 35, 6, 6, 6);
 	}
 
 }
