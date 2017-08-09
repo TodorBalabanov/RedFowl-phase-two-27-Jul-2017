@@ -309,8 +309,7 @@ public class Main {
 			 * Report progress.
 			 */
 			if (r % interval == 0) {
-				// System.err.println(String.format("%5.2f", (100D * r / runs))
-				// + "%");
+				System.err.println(String.format("%5.2f", (100D * r / runs)) + "%");
 			}
 
 			/*
@@ -387,7 +386,7 @@ public class Main {
 		/*
 		 * Classical Lucky Six game.
 		 */
-		simulate(10000L, 10, 35, 6, 10, 6);
+		simulate(100000000L, 10, 35, 6, 10, 6);
 
 		// simulate(10000L, 10, 35, 6, 6, 6);
 	}
