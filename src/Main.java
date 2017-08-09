@@ -1,7 +1,15 @@
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.math3.util.Combinations;
+
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+
+//for (Iterator<int[]> it = combinations[i].iterator(); it.hasNext();) {
+//	System.err.println(Arrays.toString(it.next()));
+//}
 
 /**
  * Application single entry point class.
@@ -46,14 +54,34 @@ public class Main {
 			new Ball(87, 6), new Ball(88, 7), new Ball(89, 8), new Ball(90, 9), };
 
 	/**
-	 * Shuffle balls and draw specified number out.
-	 * 
-	 * @param balls
-	 *            List of all balls in the game.
-	 * @param drawn
-	 *            Array of drawn balls.
+	 * All bingo balls as list for better shuffling.
 	 */
-	private static void deal(List<Ball> balls, Ball[] drawn) {
+	private static List<Ball> balls = null;
+
+	/**
+	 * Balls drawn in the single game.
+	 */
+	private static Ball drawn[] = null;
+
+	/**
+	 * Tickets marked in the single game.
+	 */
+	private static Ball tickets[][] = null;
+
+	/**
+	 * Combinations for each ticket.
+	 */
+	private static Combinations combinations[] = null;
+
+	/**
+	 * Winnings counters.
+	 */
+	private static long counters[][] = null;
+
+	/**
+	 * Shuffle balls and draw specified number out.
+	 */
+	private static void deal() {
 		Collections.shuffle(balls);
 
 		for (int i = 0; i < drawn.length; i++) {
@@ -63,13 +91,8 @@ public class Main {
 
 	/**
 	 * Random selection of numbers in the tickets.
-	 * 
-	 * @param tickets
-	 *            Five tickets for combinations of 6/6, 6/7, 6/8, 6/9 and 6/10.
-	 * @param balls
-	 *            List of all balls in the game.
 	 */
-	private static void mark(Ball[][] tickets, List<Ball> balls) {
+	private static void mark() {
 		for (int i = 0; i < tickets.length; i++) {
 			for (int j = 0; j < tickets[i].length; j++) {
 				Ball ball = null;
@@ -90,28 +113,19 @@ public class Main {
 
 				tickets[i][j] = ball;
 			}
-
-			// Arrays.sort(tickets[i]);
 		}
 	}
 
 	/**
 	 * Check out wining situations.
 	 * 
-	 * @param drawn
-	 *            Balls drawn in the single game.
-	 * @param tickets
-	 *            Tickets marked in the single game.
 	 * @param numberOfBallsToGuess
 	 *            How many balls should be guessed.
 	 * @param numberOfSameColor
 	 *            How many balls should come out in order to count particular
 	 *            color as complete.
-	 * @param counters
-	 *            Winnings counters.
 	 */
-	private static void count(Ball drawn[], Ball[][] tickets, int numberOfBallsToGuess, int numberOfSameColor,
-			long[][] counters) {
+	private static void count(int numberOfBallsToGuess, int numberOfSameColor) {
 		for (int i = 0, max, count; i < tickets.length; i++) {
 			max = 0;
 			count = 0;
@@ -212,23 +226,25 @@ public class Main {
 	 */
 	private static void simulate(long runs, int numberOfCloros, int drawnBallsNumber, int numberOfBallsToGuess,
 			int maxTicketBalls, int numberOfSameColor) {
-		Ball drawn[] = new Ball[drawnBallsNumber];
+		drawn = new Ball[drawnBallsNumber];
 
-		List<Ball> balls = Arrays.asList(BALLS);
+		balls = Arrays.asList(BALLS);
 
 		/*
 		 * Allocate tickets for all possible combinations.
 		 */
-		Ball tickets[][] = new Ball[maxTicketBalls - numberOfBallsToGuess + 1][];
+		tickets = new Ball[maxTicketBalls - numberOfBallsToGuess + 1][];
+		combinations = new Combinations[maxTicketBalls - numberOfBallsToGuess + 1];
 		for (int i = 0; i < tickets.length; i++) {
 			tickets[i] = new Ball[numberOfBallsToGuess + i];
+			combinations[i] = new Combinations(numberOfBallsToGuess + i, numberOfBallsToGuess);
 		}
 
 		/*
 		 * Counters for each ticket. Plus two is needed because the counters of
 		 * the complete colors are also included in this two dimensional array.
 		 */
-		long counters[][] = new long[maxTicketBalls - numberOfBallsToGuess + 1 + 1][];
+		counters = new long[maxTicketBalls - numberOfBallsToGuess + 1 + 1][];
 		for (int i = 0; i < counters.length - 1; i++) {
 			/*
 			 * At which ball win is achieved. Plus one is needed because it is
@@ -257,9 +273,9 @@ public class Main {
 			/*
 			 * Single run.
 			 */
-			deal(balls, drawn);
-			mark(tickets, balls);
-			count(drawn, tickets, numberOfBallsToGuess, numberOfSameColor, counters);
+			deal();
+			mark();
+			count(numberOfBallsToGuess, numberOfSameColor);
 		}
 
 		/*
@@ -328,9 +344,7 @@ public class Main {
 		/*
 		 * Classical Lucky Six game.
 		 */
-		//simulate(1000000000L, 10, 35, 6, 10, 6);
-		
-		simulate(1000000000L, 10, 35, 6, 10, 7);
+		simulate(1000000000L, 10, 35, 6, 10, 6);
 	}
 
 }
