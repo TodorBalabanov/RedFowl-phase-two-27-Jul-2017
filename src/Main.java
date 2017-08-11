@@ -254,6 +254,8 @@ public class Main {
 	 * 
 	 * @param runs
 	 *            How many games to run.
+	 * @param totalNumberOfBalls
+	 *            Total number of balls used in the simulation.
 	 * @param numberOfCloros
 	 *            Number of different ball colors.
 	 * @param drawnBallsNumber
@@ -266,11 +268,11 @@ public class Main {
 	 *            How many balls from the same color should be drawn in order
 	 *            the color to be counted as complete.
 	 */
-	private static void simulate(long runs, int numberOfCloros, int drawnBallsNumber, int numberOfBallsToGuess,
-			int maxTicketBalls, int numberOfSameColor) {
+	private static void simulate(long runs, int totalNumberOfBalls, int numberOfCloros, int drawnBallsNumber,
+			int numberOfBallsToGuess, int maxTicketBalls, int numberOfSameColor) {
 		drawn = new Ball[drawnBallsNumber];
 
-		balls = Arrays.asList(BALLS);
+		balls = Arrays.asList(Arrays.copyOfRange(BALLS, 0, totalNumberOfBalls - 1));
 
 		/*
 		 * Allocate tickets for all possible combinations.
@@ -386,9 +388,10 @@ public class Main {
 		/*
 		 * Classical Lucky Six game.
 		 */
-		simulate(100000000L, 10, 35, 6, 10, 6);
+		// simulate(100000000L, 90, 10, 35, 6, 10, 6);
 
 		// simulate(10000L, 10, 35, 6, 6, 6);
+		simulate(10000000L, 7, 10, 5, 3, 5, 7);
 	}
 
 }
